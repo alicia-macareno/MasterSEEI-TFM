@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">myhealthcare</string>
+    <string name="Signin">Sign in</string>
+    <string name="Email">Email</string>
+    <string name="Password">Password</string>
+    <string name="Send">Send</string>
+    <string name="LogIn">Log in</string>
+    <string name="WelcomeLabel">Welcome to Family Care App</string>
+    <string name="CreateNewAccount">Create new account</string>
+    <string name="LoginAsAdmin">Log in as admin user</string>
+    <string name="LogInAsFinalUser">Log in as final user</string>
+    <string name="CreateAccount">Don\'t you have an account? Register here.</string>
+    <string name="FirstName">First name</string>
+    <string name="FirstLastName">First last name</string>
+    <string name="SecondLastName">Second last name</string>
+    <string name="PhoneNumber">Phone number</string>
+    <string name="ConfirmPassword">Confirm password</string>
+    <string name="AccountCreated">Account successfully created!</string>
+    <string name="GoToSignIn">Iniciar sesión</string>
+    <string name="LogAsAdmin">Login as Admin</string>
+</resources>

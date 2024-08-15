@@ -1,0 +1,7 @@
+<resources>
+    <string-array name="phone_prefix_array">
+        <item>+1</item>
+        <item>+34</item>
+        <item>+44</item>
+    </string-array>
+</resources>
