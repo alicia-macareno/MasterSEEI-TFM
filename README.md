@@ -1,0 +1,1 @@
+Este repositorio ha sido creado con la finalidad de almacenar y compartir de forma pública los códigos utilizados para el trabajo de fin de máster del Máster en Sistemas Electrónicos para Entornos Inteligentes.
