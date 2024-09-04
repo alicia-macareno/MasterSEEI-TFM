@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,16 +21,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+import java.util.Locale;
 
 public class ParentAccountLoginScreen extends AppCompatActivity {
 
     private EditText loginEmail;
     private EditText loginPassword;
     private String resultMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Leer el idioma guardado de SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        String language = prefs.getString("language", Locale.getDefault().getLanguage());
+
+        // Establecer el nuevo Locale para la aplicación
+        Locale newLocale = new Locale(language);
+        Locale.setDefault(newLocale);
+        Configuration config = new Configuration();
+        config.setLocale(newLocale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+
         setContentView(R.layout.activity_parent_account_login);
         loginEmail = findViewById(R.id.emailSignInTextInput);
         loginPassword = findViewById(R.id.passwordSignInTextInput);
@@ -40,11 +54,9 @@ public class ParentAccountLoginScreen extends AppCompatActivity {
         Editable password = loginPassword.getText();
         closeKeyboard();
         new LoginUser().execute(email.toString(), password.toString());
-
     }
 
-    public void navigateToCreateParentAccount(View view)
-    {
+    public void navigateToCreateParentAccount(View view) {
         closeKeyboard();
         Intent intent = new Intent(ParentAccountLoginScreen.this, CreateParentAccountScreen.class);
         startActivity(intent);
@@ -54,9 +66,10 @@ public class ParentAccountLoginScreen extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            // Muestra un mensaje indicando que se está realizando la tarea
-            Toast.makeText(ParentAccountLoginScreen.this, "Iniciando sesión...", Toast.LENGTH_SHORT).show();
+            // Mostrar mensaje indicando que se está realizando la tarea
+            Toast.makeText(ParentAccountLoginScreen.this, R.string.logging_in_message, Toast.LENGTH_SHORT).show();
         }
+
         @Override
         protected String doInBackground(String... strings) {
             String email = strings[0];
@@ -82,62 +95,74 @@ public class ParentAccountLoginScreen extends AppCompatActivity {
 
                 switch(myConnection.getResponseCode()) {
                     case HttpURLConnection.HTTP_OK:
-                        resultMessage = "Successful login!";
+                        resultMessage = getString(R.string.login_success_message);
                         Intent intent = new Intent(ParentAccountLoginScreen.this, ParentAccountMainScreen.class);
                         intent.putExtra("email", email);
                         intent.putExtra("password", password);
                         startActivity(intent);
                         break;
                     case HttpURLConnection.HTTP_BAD_REQUEST:
-                        resultMessage = "Incorrect email or password";
+                        resultMessage = getString(R.string.incorrect_credentials_message);
                         break;
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        resultMessage = "There is no user registered with that email";
+                        resultMessage = getString(R.string.user_not_found_message);
                         break;
                     default:
-                        resultMessage = "There was an error trying to log you in, please try again later.";
+                        resultMessage = getString(R.string.login_error_message);
                         break;
                 }
 
             } catch (JSONException | IOException e) {
-                throw new RuntimeException(e);
+                resultMessage = getString(R.string.login_error_message);
+                e.printStackTrace(); // Imprimir el stack trace para depuración
             }
 
             return null;
-
         }
+
         @Override
         protected void onPostExecute(String message) {
-            // Update UI with the message
-            // Aquí puedes mostrar un Toast, cambiar un TextView o cualquier otra acción para notificar al usuario.
+            // Mostrar mensaje al usuario
             Toast.makeText(ParentAccountLoginScreen.this, resultMessage, Toast.LENGTH_SHORT).show();
-
         }
     }
 
-    private void closeKeyboard()
-    {
-        // this will give us the view
-        // which is currently focus
-        // in this layout
+    private void closeKeyboard() {
         View view = this.getCurrentFocus();
 
-        // if nothing is currently
-        // focus then this will protect
-        // the app from crash
         if (view != null) {
-
-            // now assign the system
-            // service to InputMethodManager
-            InputMethodManager manager
-                    = (InputMethodManager)
-                    getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-            manager
-                    .hideSoftInputFromWindow(
-                            view.getWindowToken(), 0);
+            InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
+    public void onLanguageChangeClick(View view) {
+        // Obtener el idioma actual
+        String currentLanguage = Locale.getDefault().getLanguage();
 
+        // Determinar el nuevo idioma
+        Locale newLocale;
+        if (currentLanguage.equals("es")) {
+            newLocale = Locale.ENGLISH; // Cambiar a inglés
+        } else {
+            newLocale = new Locale("es"); // Cambiar a español
+        }
+
+        // Establecer el nuevo Locale para la aplicación
+        Locale.setDefault(newLocale);
+        Configuration config = new Configuration();
+        config.setLocale(newLocale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+
+        // Guardar el idioma en SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("language", newLocale.getLanguage());
+        editor.apply();
+
+        // Reiniciar la actividad para aplicar el cambio
+        Intent refresh = new Intent(this, ParentAccountLoginScreen.class);
+        finish();
+        startActivity(refresh);
+    }
 }

@@ -1,7 +1,52 @@
 <resources>
     <string-array name="phone_prefix_array">
-        <item>+1</item>
-        <item>+34</item>
-        <item>+44</item>
+        <item>+34</item>  <!-- España -->
+        <item>+44</item>  <!-- Reino Unido -->
+        <item>+30</item>  <!-- Grecia -->
+        <item>+31</item>  <!-- Países Bajos -->
+        <item>+32</item>  <!-- Bélgica -->
+        <item>+33</item>  <!-- Francia -->
+        <item>+36</item>  <!-- Hungría -->
+        <item>+39</item>  <!-- Italia -->
+        <item>+40</item>  <!-- Rumanía -->
+        <item>+41</item>  <!-- Suiza -->
+        <item>+43</item>  <!-- Austria -->
+        <item>+45</item>  <!-- Dinamarca -->
+        <item>+46</item>  <!-- Suecia -->
+        <item>+47</item>  <!-- Noruega -->
+        <item>+48</item>  <!-- Polonia -->
+        <item>+49</item>  <!-- Alemania -->
+        <item>+350</item> <!-- Gibraltar -->
+        <item>+351</item> <!-- Portugal -->
+        <item>+352</item> <!-- Luxemburgo -->
+        <item>+353</item> <!-- Irlanda -->
+        <item>+354</item> <!-- Islandia -->
+        <item>+355</item> <!-- Albania -->
+        <item>+356</item> <!-- Malta -->
+        <item>+357</item> <!-- Chipre -->
+        <item>+358</item> <!-- Finlandia -->
+        <item>+359</item> <!-- Bulgaria -->
+        <item>+370</item> <!-- Lituania -->
+        <item>+371</item> <!-- Letonia -->
+        <item>+372</item> <!-- Estonia -->
+        <item>+373</item> <!-- Moldavia -->
+        <item>+374</item> <!-- Armenia -->
+        <item>+375</item> <!-- Bielorrusia -->
+        <item>+376</item> <!-- Andorra -->
+        <item>+377</item> <!-- Mónaco -->
+        <item>+378</item> <!-- San Marino -->
+        <item>+379</item> <!-- Vaticano -->
+        <item>+380</item> <!-- Ucrania -->
+        <item>+381</item> <!-- Serbia -->
+        <item>+382</item> <!-- Montenegro -->
+        <item>+383</item> <!-- Kosovo -->
+        <item>+385</item> <!-- Croacia -->
+        <item>+386</item> <!-- Eslovenia -->
+        <item>+387</item> <!-- Bosnia y Herzegovina -->
+        <item>+389</item> <!-- Macedonia del Norte -->
+        <item>+420</item> <!-- República Checa -->
+        <item>+421</item> <!-- Eslovaquia -->
+        <item>+423</item> <!-- Liechtenstein -->
     </string-array>
 </resources>
+

@@ -147,7 +147,7 @@ public class CreateParentAccountScreen extends AppCompatActivity {
 
                 switch(myConnection.getResponseCode()) {
                     case HttpURLConnection.HTTP_CREATED:
-                        resultMessage = "Cuenta creada correctamente!";
+                        resultMessage = getString(R.string.account_created);
                         Intent intent = new Intent(CreateParentAccountScreen.this, SuccessfulParentAccountCreation.class);
                         intent.putExtra("email", email);
                         intent.putExtra("password", password);

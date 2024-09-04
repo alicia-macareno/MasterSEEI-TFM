@@ -53,7 +53,7 @@
     <string name="login_error">There was an error trying to log you in, please try again later.</string>
     <string name="language_change_button_text">Change Language</string>
     <string name="toast_complete_fields">Please complete all required fields</string>
-    <string name="toast_update_success">Account successfully updated</string>
+    <string name="toast_update_success">Account successfully updated.</string>
     <string name="toast_update_error">Error updating account</string>
     <string name="toast_connection_error">Connection or account update error</string>
     <string name="log_received_data">Received data for loginEmail: %s</string>
@@ -65,10 +65,9 @@
     <string name="log_starting_task">Starting account update task</string>
     <string name="log_task_result">Task result: %s</string>
     <string name="log_item_clicked">Item clicked: %s</string>
-    <string name="full_name" translatable="false">%1$s %2$s</string>
-    <string name="alert_out_of_perimeter">Alert! You have gone beyond the established perimeter.</string>
-    <string name="alert_message">Alert! %1$s %2$s has gone beyond the established perimeter.</string>
-    <string name="new_location">New location: Latitude %1$.6f, Longitude %2$.6f</string>
+    <string name="alert_out_of_perimeter">Alert! You have moved beyond the established perimeter.</string>
+    <string name="alert_message">Alert! %1$s %2$s has moved beyond the established perimeter.</string>
+    <string name="new_location">New location: %1$.6f, %2$.6f</string>
     <string name="possible_fall_detected">Possible fall detected!</string>
     <string name="fall_alert_message">Alert! A possible fall has been detected for user %1$s %2$s.</string>
     <string name="getting_user_data">Getting user data...</string>
@@ -76,15 +75,15 @@
     <string name="sending_location_data">Sending location data...</string>
     <string name="location_registered_successfully">Location registered successfully!</string>
     <string name="forbidden">Forbidden</string>
-    <string name="location_error">There was an error trying to register the location, please try again later.</string>
-    <string name="sms_permission_denied">SMS sending permission not granted</string>
+    <string name="location_error">There was an error trying to register the location. Please try again later.</string>
+    <string name="sms_permission_denied">SMS permission not granted</string>
     <string name="request_error">Request error</string>
     <string name="location_sent">Location sent successfully</string>
     <string name="sms_sent">SMS sent successfully</string>
     <string name="sending_location">Sending location...</string>
     <string name="json_parsing_error">Error parsing JSON</string>
     <string name="user_data_received">User data received for %1$s</string>
-    <string name="update_base_location">Update base location</string>
+    <string name="update_base_location">"Update base "</string>
     <string name="logging_in_message">Logging in...</string>
     <string name="login_success_message">Successful login!</string>
     <string name="incorrect_credentials_message">Incorrect email or password</string>

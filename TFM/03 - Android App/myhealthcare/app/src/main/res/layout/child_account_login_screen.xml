@@ -4,6 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Icono para cambiar el idioma -->
+    <ImageView
+        android:id="@+id/languageIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
+        android:background="@android:color/white"
+        android:elevation="20dp"
+        android:src="@drawable/ic_language1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="onLanguageChangeClick" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="350dp"
@@ -24,17 +37,18 @@
                 android:id="@+id/signInTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/LogIn"
+                android:text="@string/log_in"
                 android:textAlignment="center"
                 android:textColor="#283618"
                 android:textSize="30sp"
+                android:paddingBottom="15sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/emailTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/Email"
+                android:text="@string/email"
                 android:textColor="#354F52"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -50,7 +64,7 @@
                 android:id="@+id/passwordTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/Password"
+                android:text="@string/password"
                 android:textColor="#354F52"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -62,19 +76,6 @@
                 android:ems="10"
                 android:inputType="textPassword" />
 
-            <TextView
-                android:id="@+id/createAccountTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:contextClickable="true"
-                android:gravity="end"
-                android:padding="10sp"
-                android:text="@string/CreateAccount"
-                android:textColor="#606C38"
-                android:textStyle="bold"
-                android:onClick="navigateToCreateParentAccount" />
-
             <Button
                 android:id="@+id/signInButton"
                 android:layout_width="223dp"
@@ -83,7 +84,7 @@
                 android:layout_marginTop="20dp"
                 android:backgroundTint="#52796F"
                 android:onClick="onClickSendSignIn"
-                android:text="@string/Send" />
+                android:text="@string/send" />
 
         </LinearLayout>
 
@@ -98,7 +99,7 @@
         android:backgroundTint="#52796F"
         android:elevation="8dp"
         android:onClick="navigateToParentAccountLogin"
-        android:text="@string/LoginAsAdmin"
+        android:text="@string/login_as_admin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

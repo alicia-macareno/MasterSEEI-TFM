@@ -1,0 +1,3135 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "users_1_lastName": {
+            "type": "SecureString"
+        },
+        "vulnerabilityAssessments_Default_storageContainerPath": {
+            "type": "SecureString"
+        },
+        "sites_myhealthappmanagement_name": {
+            "defaultValue": "myhealthappmanagement",
+            "type": "String"
+        },
+        "servers_myhealthapp_masterseei_name": {
+            "defaultValue": "myhealthapp-masterseei",
+            "type": "String"
+        },
+        "serverfarms_ASP_MasterSEEIDEV_9807_name": {
+            "defaultValue": "ASP-MasterSEEIDEV-9807",
+            "type": "String"
+        },
+        "vaults_masterseei_dev_keyvault_name": {
+            "defaultValue": "masterseei-dev-keyvault",
+            "type": "String"
+        },
+        "components_MasterSEEI_AppInsights_name": {
+            "defaultValue": "MasterSEEI-AppInsights",
+            "type": "String"
+        },
+        "storageAccounts_myhealthappmngstorage_name": {
+            "defaultValue": "myhealthappmngstorage",
+            "type": "String"
+        },
+        "service_masterseei_dev_apimanagement_name": {
+            "defaultValue": "masterseei-dev-apimanagement",
+            "type": "String"
+        },
+        "actionGroups_Application_Insights_Smart_Detection_name": {
+            "defaultValue": "Application Insights Smart Detection",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___masterseei_appinsights_name": {
+            "defaultValue": "failure anomalies - masterseei-appinsights",
+            "type": "String"
+        },
+        "workspaces_DefaultWorkspace_94eebe88_e8ef_42d8_bd28_7bd6dbcb2cca_WEU_externalid": {
+            "defaultValue": "/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/resourceGroups/DefaultResourceGroup-WEU/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca-WEU",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[parameters('service_masterseei_dev_apimanagement_name')]",
+            "location": "West Europe",
+            "sku": {
+                "name": "StandardV2",
+                "capacity": 1
+            },
+            "properties": {
+                "publisherEmail": "xxx",
+                "publisherName": "xxx",
+                "notificationSenderEmail": "apimgmt-noreply@mail.windowsazure.com",
+                "hostnameConfigurations": [
+                    {
+                        "type": "Proxy",
+                        "hostName": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '.azure-api.net')]",
+                        "negotiateClientCertificate": false,
+                        "defaultSslBinding": true,
+                        "certificateSource": "BuiltIn"
+                    }
+                ],
+                "customProperties": {
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls10": "False",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls11": "False",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls10": "False",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls11": "False",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Ssl30": "False",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Protocols.Server.Http2": "False"
+                },
+                "virtualNetworkType": "None",
+                "natGatewayState": "Enabled",
+                "apiVersionConstraint": {},
+                "publicNetworkAccess": "Enabled",
+                "legacyPortalStatus": "Disabled",
+                "developerPortalStatus": "Disabled"
+            }
+        },
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[parameters('actionGroups_Application_Insights_Smart_Detection_name')]",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "SmartDetect",
+                "enabled": true,
+                "emailReceivers": [],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "eventHubReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [],
+                "armRoleReceivers": [
+                    {
+                        "name": "Monitoring Contributor",
+                        "roleId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+                        "useCommonAlertSchema": true
+                    },
+                    {
+                        "name": "Monitoring Reader",
+                        "roleId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2020-02-02",
+            "name": "[parameters('components_MasterSEEI_AppInsights_name')]",
+            "location": "westeurope",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Redfield",
+                "Request_Source": "IbizaAIExtension",
+                "RetentionInDays": 90,
+                "WorkspaceResourceId": "[parameters('workspaces_DefaultWorkspace_94eebe88_e8ef_42d8_bd28_7bd6dbcb2cca_WEU_externalid')]",
+                "IngestionMode": "LogAnalytics",
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2024-04-01-preview",
+            "name": "[parameters('vaults_masterseei_dev_keyvault_name')]",
+            "location": "westeurope",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "202853f8-3747-4223-8e8d-46c0d2aa8d7e",
+                "accessPolicies": [],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90,
+                "enableRbacAuthorization": true,
+                "vaultUri": "[concat('https://', parameters('vaults_masterseei_dev_keyvault_name'), '.vault.azure.net/')]",
+                "provisioningState": "Succeeded",
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[parameters('servers_myhealthapp_masterseei_name')]",
+            "location": "westeurope",
+            "kind": "v12.0",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "administratorLogin": "CloudSA7d104f3c",
+                "version": "12.0",
+                "minimalTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled",
+                "administrators": {
+                    "administratorType": "ActiveDirectory",
+                    "principalType": "Group",
+                    "login": "xxxx",
+                    "sid": "4a08e9ce-6182-47bc-a3a3-63b2ee4b90ec",
+                    "tenantId": "202853f8-3747-4223-8e8d-46c0d2aa8d7e",
+                    "azureADOnlyAuthentication": false
+                },
+                "restrictOutboundNetworkAccess": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-05-01",
+            "name": "[parameters('storageAccounts_myhealthappmngstorage_name')]",
+            "location": "westeurope",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "dnsEndpointType": "Standard",
+                "defaultToOAuthAuthentication": false,
+                "publicNetworkAccess": "Enabled",
+                "allowCrossTenantReplication": false,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "requireInfrastructureEncryption": false,
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2023-12-01",
+            "name": "[parameters('serverfarms_ASP_MasterSEEIDEV_9807_name')]",
+            "location": "West Europe",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "kind": "functionapp",
+            "properties": {
+                "perSiteScaling": false,
+                "elasticScaleEnabled": false,
+                "maximumElasticWorkerCount": 0,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "My Health App Management",
+                "apiRevision": "1",
+                "description": "Import from \"myhealthappmanagement\" Function App",
+                "subscriptionRequired": true,
+                "path": "myhealthappmanagement",
+                "protocols": [
+                    "https"
+                ],
+                "authenticationSettings": {
+                    "oAuth2AuthenticationSettings": [],
+                    "openidAuthenticationSettings": []
+                },
+                "subscriptionKeyParameterNames": {
+                    "header": "Ocp-Apim-Subscription-Key",
+                    "query": "subscription-key"
+                },
+                "isCurrent": true
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/backends",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/myhealthappmanagement')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "description": "myhealthappmanagement",
+                "url": "https://myhealthappmanagement.azurewebsites.net/api",
+                "protocol": "http",
+                "resourceId": "https://management.azure.com/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/resourceGroups/MasterSEEI-DEV/providers/Microsoft.Web/sites/myhealthappmanagement",
+                "credentials": {
+                    "header": {
+                        "x-functions-key": [
+                            "{{myhealthappmanagement-key}}"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/groups",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/administrators')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "Administrators",
+                "description": "Administrators is a built-in group containing the admin email account provided at the time of service creation. Its membership is managed by the system.",
+                "type": "system"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/groups",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/developers')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "Developers",
+                "description": "Developers is a built-in group. Its membership is managed by the system. Signed-in users fall into this group.",
+                "type": "system"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/groups",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/guests')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "Guests",
+                "description": "Guests is a built-in group. Its membership is managed by the system. Unauthenticated users visiting the developer portal fall into this group.",
+                "type": "system"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/loggers",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/azuremonitor')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "loggerType": "azureMonitor",
+                "isBuffered": true
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/namedValues",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/66bde6a1bcc854120c8de716')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "Logger-Credentials--66bde6a1bcc854120c8de717",
+                "secret": true
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/namedValues",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/myhealthappmanagement-key')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "myhealthappmanagement-key",
+                "tags": [
+                    "key",
+                    "function",
+                    "auto"
+                ],
+                "secret": true
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/AccountClosedPublisher')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/BCC')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/NewApplicationNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/NewIssuePublisherNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/PurchasePublisherNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/QuotaLimitApproachingPublisherNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/notifications",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/RequestPublisherNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<!--\r\n    IMPORTANT:\r\n    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.\r\n    - Only the <forward-request> policy element can appear within the <backend> section element.\r\n    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.\r\n    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.\r\n    - To add a policy position the cursor at the desired insertion point and click on the round button associated with the policy.\r\n    - To remove a policy, delete the corresponding policy statement from the policy document.\r\n    - Policies are applied in the order of their appearance, from the top down.\r\n-->\r\n<policies>\r\n  <inbound></inbound>\r\n  <backend>\r\n    <forward-request />\r\n  </backend>\r\n  <outbound></outbound>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/portalconfigs",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "enableBasicAuth": true,
+                "signin": {
+                    "require": false
+                },
+                "signup": {
+                    "termsOfService": {
+                        "requireConsent": false
+                    }
+                },
+                "delegation": {
+                    "delegateRegistration": false,
+                    "delegateSubscription": false
+                },
+                "cors": {
+                    "allowedOrigins": []
+                },
+                "csp": {
+                    "mode": "disabled",
+                    "reportUri": [],
+                    "allowedSources": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/properties",
+            "apiVersion": "2019-01-01",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/66bde6a1bcc854120c8de716')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "Logger-Credentials--66bde6a1bcc854120c8de717",
+                "value": "c5c483d8-a722-4a7d-838f-a393fd26ea92",
+                "secret": true
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/properties",
+            "apiVersion": "2019-01-01",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/myhealthappmanagement-key')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "myhealthappmanagement-key",
+                "value": "mMMRQjJNjvQoX3mCzsWzAv646WvH2/2MTMG1R9r/nANhWZqNtsNgpg==",
+                "tags": [
+                    "key",
+                    "function",
+                    "auto"
+                ],
+                "secret": true
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/subscriptions",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/master')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "scope": "[concat(resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name')), '/')]",
+                "displayName": "Built-in all-access subscription",
+                "state": "active",
+                "allowTracing": false
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/AccountClosedDeveloper')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Thank you for using the $OrganizationName API!",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          On behalf of $OrganizationName and our customers we thank you for giving us a try. Your $OrganizationName API account is now closed.\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Your $OrganizationName Team</p>\r\n    <a href=\"$DevPortalUrl\">$DevPortalUrl</a>\r\n    <p />\r\n  </body>\r\n</html>",
+                "title": "Developer farewell letter",
+                "description": "Developers receive this farewell email after they close their account.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/ApplicationApprovedNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your application $AppName is published in the application gallery",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          We are happy to let you know that your request to publish the $AppName application in the application gallery has been approved. Your application has been published and can be viewed <a href=\"http://$DevPortalUrl/Applications/Details/$AppId\">here</a>.\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Best,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p>\r\n  </body>\r\n</html>",
+                "title": "Application gallery submission approved (deprecated)",
+                "description": "Developers who submitted their application for publication in the application gallery on the developer portal receive this email after their submission is approved.",
+                "parameters": [
+                    {
+                        "name": "AppId",
+                        "title": "Application id"
+                    },
+                    {
+                        "name": "AppName",
+                        "title": "Application name"
+                    },
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/ConfirmSignUpIdentityDefault')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Please confirm your new $OrganizationName API account",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <title>Letter</title>\r\n  </head>\r\n  <body>\r\n    <table width=\"100%\">\r\n      <tr>\r\n        <td>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\"></p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you for joining the $OrganizationName API program! We host a growing number of cool APIs and strive to provide an awesome experience for API developers.</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">First order of business is to activate your account and get you going. To that end, please click on the following link:</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a id=\"confirmUrl\" href=\"$ConfirmUrl\" style=\"text-decoration:none\">\r\n              <strong>$ConfirmUrl</strong>\r\n            </a>\r\n          </p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">If clicking the link does not work, please copy-and-paste or re-type it into your browser's address bar and hit \"Enter\".</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">$OrganizationName API Team</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a href=\"$DevPortalUrl\">$DevPortalUrl</a>\r\n          </p>\r\n        </td>\r\n      </tr>\r\n    </table>\r\n  </body>\r\n</html>",
+                "title": "New developer account confirmation",
+                "description": "Developers receive this email to confirm their e-mail address after they sign up for a new account.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    },
+                    {
+                        "name": "ConfirmUrl",
+                        "title": "Developer activation URL"
+                    },
+                    {
+                        "name": "DevPortalHost",
+                        "title": "Developer portal hostname"
+                    },
+                    {
+                        "name": "ConfirmQuery",
+                        "title": "Query string part of the activation URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/EmailChangeIdentityDefault')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Please confirm the new email associated with your $OrganizationName API account",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <title>Letter</title>\r\n  </head>\r\n  <body>\r\n    <table width=\"100%\">\r\n      <tr>\r\n        <td>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\"></p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">You are receiving this email because you made a change to the email address on your $OrganizationName API account.</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Please click on the following link to confirm the change:</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a id=\"confirmUrl\" href=\"$ConfirmUrl\" style=\"text-decoration:none\">\r\n              <strong>$ConfirmUrl</strong>\r\n            </a>\r\n          </p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">If clicking the link does not work, please copy-and-paste or re-type it into your browser's address bar and hit \"Enter\".</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">$OrganizationName API Team</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a href=\"$DevPortalUrl\">$DevPortalUrl</a>\r\n          </p>\r\n        </td>\r\n      </tr>\r\n    </table>\r\n  </body>\r\n</html>",
+                "title": "Email change confirmation",
+                "description": "Developers receive this email to confirm a new e-mail address after they change their existing one associated with their account.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    },
+                    {
+                        "name": "ConfirmUrl",
+                        "title": "Developer confirmation URL"
+                    },
+                    {
+                        "name": "DevPortalHost",
+                        "title": "Developer portal hostname"
+                    },
+                    {
+                        "name": "ConfirmQuery",
+                        "title": "Query string part of the confirmation URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/InviteUserNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "You are invited to join the $OrganizationName developer network",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          Your account has been created. Please follow the link below to visit the $OrganizationName developer portal and claim it:\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n      <a href=\"$ConfirmUrl\">$ConfirmUrl</a>\r\n    </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Best,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p>\r\n  </body>\r\n</html>",
+                "title": "Invite user",
+                "description": "An e-mail invitation to create an account, sent on request by API publishers.",
+                "parameters": [
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "ConfirmUrl",
+                        "title": "Confirmation link"
+                    },
+                    {
+                        "name": "DevPortalHost",
+                        "title": "Developer portal hostname"
+                    },
+                    {
+                        "name": "ConfirmQuery",
+                        "title": "Query string part of the confirmation link"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/NewCommentNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "$IssueName issue has a new comment",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">This is a brief note to let you know that $CommenterFirstName $CommenterLastName made the following comment on the issue $IssueName you created:</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">$CommentText</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          To view the issue on the developer portal click <a href=\"http://$DevPortalUrl/issues/$IssueId\">here</a>.\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Best,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p>\r\n  </body>\r\n</html>",
+                "title": "New comment added to an issue (deprecated)",
+                "description": "Developers receive this email when someone comments on the issue they created on the Issues page of the developer portal.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "CommenterFirstName",
+                        "title": "Commenter first name"
+                    },
+                    {
+                        "name": "CommenterLastName",
+                        "title": "Commenter last name"
+                    },
+                    {
+                        "name": "IssueId",
+                        "title": "Issue id"
+                    },
+                    {
+                        "name": "IssueName",
+                        "title": "Issue name"
+                    },
+                    {
+                        "name": "CommentText",
+                        "title": "Comment text"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/NewDeveloperNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Welcome to the $OrganizationName API!",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <title>Letter</title>\r\n  </head>\r\n  <body>\r\n    <h1 style=\"color:#000505;font-size:18pt;font-family:'Segoe UI'\">\r\n          Welcome to <span style=\"color:#003363\">$OrganizationName API!</span></h1>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Your $OrganizationName API program registration is completed and we are thrilled to have you as a customer. Here are a few important bits of information for your reference:</p>\r\n    <table width=\"100%\" style=\"margin:20px 0\">\r\n      <tr>\r\n            #if ($IdentityProvider == \"Basic\")\r\n            <td width=\"50%\" style=\"height:40px;vertical-align:top;font-family:'Segoe UI';font-size:12pt\">\r\n              Please use the following <strong>username</strong> when signing into any of the ${OrganizationName}-hosted developer portals:\r\n            </td><td style=\"vertical-align:top;font-family:'Segoe UI';font-size:12pt\"><strong>$DevUsername</strong></td>\r\n            #else\r\n            <td width=\"50%\" style=\"height:40px;vertical-align:top;font-family:'Segoe UI';font-size:12pt\">\r\n              Please use the following <strong>$IdentityProvider account</strong> when signing into any of the ${OrganizationName}-hosted developer portals:\r\n            </td><td style=\"vertical-align:top;font-family:'Segoe UI';font-size:12pt\"><strong>$DevUsername</strong></td>            \r\n            #end\r\n          </tr>\r\n      <tr>\r\n        <td style=\"height:40px;vertical-align:top;font-family:'Segoe UI';font-size:12pt\">\r\n              We will direct all communications to the following <strong>email address</strong>:\r\n            </td>\r\n        <td style=\"vertical-align:top;font-family:'Segoe UI';font-size:12pt\">\r\n          <a href=\"mailto:$DevEmail\" style=\"text-decoration:none\">\r\n            <strong>$DevEmail</strong>\r\n          </a>\r\n        </td>\r\n      </tr>\r\n    </table>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Best of luck in your API pursuits!</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">$OrganizationName API Team</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n      <a href=\"http://$DevPortalUrl\">$DevPortalUrl</a>\r\n    </p>\r\n  </body>\r\n</html>",
+                "title": "Developer welcome letter",
+                "description": "Developers receive this “welcome” email after they confirm their new account.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "DevUsername",
+                        "title": "Developer user name"
+                    },
+                    {
+                        "name": "DevEmail",
+                        "title": "Developer email"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    },
+                    {
+                        "name": "IdentityProvider",
+                        "title": "Identity Provider selected by Organization"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/NewIssueNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your request $IssueName was received",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you for contacting us. Our API team will review your issue and get back to you soon.</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          Click this <a href=\"http://$DevPortalUrl/issues/$IssueId\">link</a> to view or edit your request.\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Best,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p>\r\n  </body>\r\n</html>",
+                "title": "New issue received (deprecated)",
+                "description": "This email is sent to developers after they create a new topic on the Issues page of the developer portal.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "IssueId",
+                        "title": "Issue id"
+                    },
+                    {
+                        "name": "IssueName",
+                        "title": "Issue name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/PasswordResetByAdminNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your password was reset",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <table width=\"100%\">\r\n      <tr>\r\n        <td>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\"></p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">The password of your $OrganizationName API account has been reset, per your request.</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n                Your new password is: <strong>$DevPassword</strong></p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Please make sure to change it next time you sign in.</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">$OrganizationName API Team</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a href=\"$DevPortalUrl\">$DevPortalUrl</a>\r\n          </p>\r\n        </td>\r\n      </tr>\r\n    </table>\r\n  </body>\r\n</html>",
+                "title": "Password reset by publisher notification (Password reset by admin)",
+                "description": "Developers receive this email when the publisher resets their password.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "DevPassword",
+                        "title": "New Developer password"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/PasswordResetIdentityDefault')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your password change request",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <title>Letter</title>\r\n  </head>\r\n  <body>\r\n    <table width=\"100%\">\r\n      <tr>\r\n        <td>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\"></p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">You are receiving this email because you requested to change the password on your $OrganizationName API account.</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Please click on the link below and follow instructions to create your new password:</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a id=\"resetUrl\" href=\"$ConfirmUrl\" style=\"text-decoration:none\">\r\n              <strong>$ConfirmUrl</strong>\r\n            </a>\r\n          </p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">If clicking the link does not work, please copy-and-paste or re-type it into your browser's address bar and hit \"Enter\".</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you,</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">$OrganizationName API Team</p>\r\n          <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            <a href=\"$DevPortalUrl\">$DevPortalUrl</a>\r\n          </p>\r\n        </td>\r\n      </tr>\r\n    </table>\r\n  </body>\r\n</html>",
+                "title": "Password change confirmation",
+                "description": "Developers receive this email when they request a password change of their account. The purpose of the email is to verify that the account owner made the request and to provide a one-time perishable URL for changing the password.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    },
+                    {
+                        "name": "ConfirmUrl",
+                        "title": "Developer new password instruction URL"
+                    },
+                    {
+                        "name": "DevPortalHost",
+                        "title": "Developer portal hostname"
+                    },
+                    {
+                        "name": "ConfirmQuery",
+                        "title": "Query string part of the instruction URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/PurchaseDeveloperNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your subscription to the $ProdName",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Greetings $DevFirstName $DevLastName!</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          Thank you for subscribing to the <a href=\"http://$DevPortalUrl/products/$ProdId\"><strong>$ProdName</strong></a> and welcome to the $OrganizationName developer community. We are delighted to have you as part of the team and are looking forward to the amazing applications you will build using our API!\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Below are a few subscription details for your reference:</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n      <ul>\r\n            #if ($SubStartDate != \"\")\r\n            <li style=\"font-size:12pt;font-family:'Segoe UI'\">Start date: $SubStartDate</li>\r\n            #end\r\n            \r\n            #if ($SubTerm != \"\")\r\n            <li style=\"font-size:12pt;font-family:'Segoe UI'\">Subscription term: $SubTerm</li>\r\n            #end\r\n          </ul>\r\n    </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n            Visit the developer <a href=\"http://$DevPortalUrl/developer\">profile area</a> to manage your subscription and subscription keys\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">A couple of pointers to help get you started:</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n      <strong>\r\n        <a href=\"http://$DevPortalUrl/docs/services?product=$ProdId\">Learn about the API</a>\r\n      </strong>\r\n    </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The API documentation provides all information necessary to make a request and to process a response. Code samples are provided per API operation in a variety of languages. Moreover, an interactive console allows making API calls directly from the developer portal without writing any code.</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n      <strong>\r\n        <a href=\"http://$DevPortalUrl/applications\">Feature your app in the app gallery</a>\r\n      </strong>\r\n    </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">You can publish your application on our gallery for increased visibility to potential new users.</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n      <strong>\r\n        <a href=\"http://$DevPortalUrl/issues\">Stay in touch</a>\r\n      </strong>\r\n    </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          If you have an issue, a question, a suggestion, a request, or if you just want to tell us something, go to the <a href=\"http://$DevPortalUrl/issues\">Issues</a> page on the developer portal and create a new topic.\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Happy hacking,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p>\r\n    <a style=\"font-size:12pt;font-family:'Segoe UI'\" href=\"http://$DevPortalUrl\">$DevPortalUrl</a>\r\n  </body>\r\n</html>",
+                "title": "New subscription activated",
+                "description": "Developers receive this acknowledgement email after subscribing to a product.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "ProdId",
+                        "title": "Product ID"
+                    },
+                    {
+                        "name": "ProdName",
+                        "title": "Product name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "SubStartDate",
+                        "title": "Subscription start date"
+                    },
+                    {
+                        "name": "SubTerm",
+                        "title": "Subscription term"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/QuotaLimitApproachingDeveloperNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "You are approaching an API quota limit",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head>\r\n    <style>\r\n          body {font-size:12pt; font-family:\"Segoe UI\",\"Segoe WP\",\"Tahoma\",\"Arial\",\"sans-serif\";}\r\n          .alert { color: red; }\r\n          .child1 { padding-left: 20px; }\r\n          .child2 { padding-left: 40px; }\r\n          .number { text-align: right; }\r\n          .text { text-align: left; }\r\n          th, td { padding: 4px 10px; min-width: 100px; }\r\n          th { background-color: #DDDDDD;}\r\n        </style>\r\n  </head>\r\n  <body>\r\n    <p>Greetings $DevFirstName $DevLastName!</p>\r\n    <p>\r\n          You are approaching the quota limit on you subscription to the <strong>$ProdName</strong> product (primary key $SubPrimaryKey).\r\n          #if ($QuotaResetDate != \"\")\r\n          This quota will be renewed on $QuotaResetDate.\r\n          #else\r\n          This quota will not be renewed.\r\n          #end\r\n        </p>\r\n    <p>Below are details on quota usage for the subscription:</p>\r\n    <p>\r\n      <table>\r\n        <thead>\r\n          <th class=\"text\">Quota Scope</th>\r\n          <th class=\"number\">Calls</th>\r\n          <th class=\"number\">Call Quota</th>\r\n          <th class=\"number\">Bandwidth</th>\r\n          <th class=\"number\">Bandwidth Quota</th>\r\n        </thead>\r\n        <tbody>\r\n          <tr>\r\n            <td class=\"text\">Subscription</td>\r\n            <td class=\"number\">\r\n                  #if ($CallsAlert == true)\r\n                  <span class=\"alert\">$Calls</span>\r\n                  #else\r\n                  $Calls\r\n                  #end\r\n                </td>\r\n            <td class=\"number\">$CallQuota</td>\r\n            <td class=\"number\">\r\n                  #if ($BandwidthAlert == true)\r\n                  <span class=\"alert\">$Bandwidth</span>\r\n                  #else\r\n                  $Bandwidth\r\n                  #end\r\n                </td>\r\n            <td class=\"number\">$BandwidthQuota</td>\r\n          </tr>\r\n              #foreach ($api in $Apis)\r\n              <tr><td class=\"child1 text\">API: $api.Name</td><td class=\"number\">\r\n                  #if ($api.CallsAlert == true)\r\n                  <span class=\"alert\">$api.Calls</span>\r\n                  #else\r\n                  $api.Calls\r\n                  #end\r\n                </td><td class=\"number\">$api.CallQuota</td><td class=\"number\">\r\n                  #if ($api.BandwidthAlert == true)\r\n                  <span class=\"alert\">$api.Bandwidth</span>\r\n                  #else\r\n                  $api.Bandwidth\r\n                  #end\r\n                </td><td class=\"number\">$api.BandwidthQuota</td></tr>\r\n              #foreach ($operation in $api.Operations)\r\n              <tr><td class=\"child2 text\">Operation: $operation.Name</td><td class=\"number\">\r\n                  #if ($operation.CallsAlert == true)\r\n                  <span class=\"alert\">$operation.Calls</span>\r\n                  #else\r\n                  $operation.Calls\r\n                  #end\r\n                </td><td class=\"number\">$operation.CallQuota</td><td class=\"number\">\r\n                  #if ($operation.BandwidthAlert == true)\r\n                  <span class=\"alert\">$operation.Bandwidth</span>\r\n                  #else\r\n                  $operation.Bandwidth\r\n                  #end\r\n                </td><td class=\"number\">$operation.BandwidthQuota</td></tr>\r\n              #end\r\n              #end\r\n            </tbody>\r\n      </table>\r\n    </p>\r\n    <p>Thank you,</p>\r\n    <p>$OrganizationName API Team</p>\r\n    <a href=\"$DevPortalUrl\">$DevPortalUrl</a>\r\n    <p />\r\n  </body>\r\n</html>",
+                "title": "Developer quota limit approaching notification",
+                "description": "Developers receive this email to alert them when they are approaching a quota limit.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "ProdName",
+                        "title": "Product name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "SubPrimaryKey",
+                        "title": "Primary Subscription key"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    },
+                    {
+                        "name": "QuotaResetDate",
+                        "title": "Quota reset date"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/RejectDeveloperNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your subscription request for the $ProdName",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          We would like to inform you that we reviewed your subscription request for the <strong>$ProdName</strong>.\r\n        </p>\r\n        #if ($SubDeclineReason == \"\")\r\n        <p style=\"font-size:12pt;font-family:'Segoe UI'\">Regretfully, we were unable to approve it, as subscriptions are temporarily suspended at this time.</p>\r\n        #else\r\n        <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          Regretfully, we were unable to approve it at this time for the following reason:\r\n          <div style=\"margin-left: 1.5em;\"> $SubDeclineReason </div></p>\r\n        #end\r\n        <p style=\"font-size:12pt;font-family:'Segoe UI'\"> We truly appreciate your interest. </p><p style=\"font-size:12pt;font-family:'Segoe UI'\">All the best,</p><p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p><a style=\"font-size:12pt;font-family:'Segoe UI'\" href=\"http://$DevPortalUrl\">$DevPortalUrl</a></body>\r\n</html>",
+                "title": "Subscription request declined",
+                "description": "This email is sent to developers when their subscription requests for products requiring publisher approval is declined.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "SubDeclineReason",
+                        "title": "Reason for declining subscription"
+                    },
+                    {
+                        "name": "ProdName",
+                        "title": "Product name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/templates",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/RequestDeveloperNotificationMessage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "subject": "Your subscription request for the $ProdName",
+                "body": "<!DOCTYPE html >\r\n<html>\r\n  <head />\r\n  <body>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Dear $DevFirstName $DevLastName,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          Thank you for your interest in our <strong>$ProdName</strong> API product!\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">\r\n          We were delighted to receive your subscription request. We will promptly review it and get back to you at <strong>$DevEmail</strong>.\r\n        </p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">Thank you,</p>\r\n    <p style=\"font-size:12pt;font-family:'Segoe UI'\">The $OrganizationName API Team</p>\r\n    <a style=\"font-size:12pt;font-family:'Segoe UI'\" href=\"http://$DevPortalUrl\">$DevPortalUrl</a>\r\n  </body>\r\n</html>",
+                "title": "Subscription request received",
+                "description": "This email is sent to developers to acknowledge receipt of their subscription requests for products requiring publisher approval.",
+                "parameters": [
+                    {
+                        "name": "DevFirstName",
+                        "title": "Developer first name"
+                    },
+                    {
+                        "name": "DevLastName",
+                        "title": "Developer last name"
+                    },
+                    {
+                        "name": "DevEmail",
+                        "title": "Developer email"
+                    },
+                    {
+                        "name": "ProdName",
+                        "title": "Product name"
+                    },
+                    {
+                        "name": "OrganizationName",
+                        "title": "Organization name"
+                    },
+                    {
+                        "name": "DevPortalUrl",
+                        "title": "Developer portal URL"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/users",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "firstName": "Administrator",
+                "email": "xxxxx",
+                "state": "active",
+                "identities": [
+                    {
+                        "provider": "Azure",
+                        "id": "xxxx"
+                    }
+                ],
+                "lastName": "[parameters('users_1_lastName')]"
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/degradationindependencyduration')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationindependencyduration",
+                    "DisplayName": "Degradation in dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/degradationinserverresponsetime')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationinserverresponsetime",
+                    "DisplayName": "Degradation in server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/digestMailConfiguration')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "digestMailConfiguration",
+                    "DisplayName": "Digest Mail Configuration",
+                    "Description": "This rule describes the digest mail preferences",
+                    "HelpUrl": "www.homail.com",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/extension_billingdatavolumedailyspikeextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_billingdatavolumedailyspikeextension",
+                    "DisplayName": "Abnormal rise in daily data volume (preview)",
+                    "Description": "This detection rule automatically analyzes the billing data generated by your application, and can warn you about an unusual increase in your application's billing costs",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/billing-data-volume-daily-spike.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/extension_canaryextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_canaryextension",
+                    "DisplayName": "Canary extension",
+                    "Description": "Canary extension",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/extension_exceptionchangeextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_exceptionchangeextension",
+                    "DisplayName": "Abnormal rise in exception volume (preview)",
+                    "Description": "This detection rule automatically analyzes the exceptions thrown in your application, and can warn you about unusual patterns in your exception telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/abnormal-rise-in-exception-volume.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/extension_memoryleakextension')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_memoryleakextension",
+                    "DisplayName": "Potential memory leak detected (preview)",
+                    "Description": "This detection rule automatically analyzes the memory consumption of each process in your application, and can warn you about potential memory leaks or increased memory consumption.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/memory-leak.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/extension_securityextensionspackage')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_securityextensionspackage",
+                    "DisplayName": "Potential security issue detected (preview)",
+                    "Description": "This detection rule automatically analyzes the telemetry generated by your application and detects potential security issues.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/application-security-detection-pack.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/extension_traceseveritydetector')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_traceseveritydetector",
+                    "DisplayName": "Degradation in trace severity ratio (preview)",
+                    "Description": "This detection rule automatically analyzes the trace logs emitted from your application, and can warn you about unusual patterns in the severity of your trace telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/degradation-in-trace-severity-ratio.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/longdependencyduration')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "longdependencyduration",
+                    "DisplayName": "Long dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/migrationToAlertRulesCompleted')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "migrationToAlertRulesCompleted",
+                    "DisplayName": "Migration To Alert Rules Completed",
+                    "Description": "A configuration that controls the migration state of Smart Detection to Smart Alerts",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": false,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": false,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/slowpageloadtime')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowpageloadtime",
+                    "DisplayName": "Slow page load time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_MasterSEEI_AppInsights_name'), '/slowserverresponsetime')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowserverresponsetime",
+                    "DisplayName": "Slow server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/administrators",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ActiveDirectory')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "administratorType": "ActiveDirectory",
+                "login": "xxxx",
+                "sid": "4a08e9ce-6182-47bc-a3a3-63b2ee4b90ec",
+                "tenantId": "202853f8-3747-4223-8e8d-46c0d2aa8d7e"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advancedThreatProtectionSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/CreateIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/DbParameterization')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/DefragmentIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/DropIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ForceLastGoodPlan')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/azureADOnlyAuthentications",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "azureADOnlyAuthentication": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/connectionPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/default')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "connectionType": "Default"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "sku": {
+                "name": "GP_S_Gen5",
+                "tier": "GeneralPurpose",
+                "family": "Gen5",
+                "capacity": 1
+            },
+            "kind": "v12.0,user,vcore,serverless",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 34359738368,
+                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                "zoneRedundant": false,
+                "readScale": "Disabled",
+                "autoPauseDelay": 60,
+                "requestedBackupStorageRedundancy": "Geo",
+                "minCapacity": 0.5,
+                "maintenanceConfigurationId": "/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default",
+                "isLedgerOn": false,
+                "availabilityZone": "NoPreference"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [
+                    ""
+                ],
+                "emailAddresses": [
+                    ""
+                ],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/devOpsAuditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/encryptionProtector",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyName": "ServiceManaged",
+                "serverKeyType": "ServiceManaged",
+                "autoRotationEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/extendedAuditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/AllowAllWindowsAzureIps')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ClientIPAddress_2023-10-17_18-14-15')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ClientIPAddress_2024-06-02_05:09:59')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "79.144.70.90",
+                "endIpAddress": "79.144.70.90"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ClientIPAddress_2024-08-13_06:21:56')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "79.147.82.148",
+                "endIpAddress": "79.147.82.148"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ClientIPAddress_2024-1-18_20-19-9')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "79.144.64.242",
+                "endIpAddress": "79.144.64.242"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/keys",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/ServiceManaged')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyType": "ServiceManaged"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/securityAlertPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [
+                    ""
+                ],
+                "emailAddresses": [
+                    ""
+                ],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/sqlVulnerabilityAssessments",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                },
+                "storageContainerPath": "[parameters('vulnerabilityAssessments_Default_storageContainerPath')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2023-12-01",
+            "name": "[parameters('sites_myhealthappmanagement_name')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_MasterSEEIDEV_9807_name'))]"
+            ],
+            "tags": {
+                "hidden-link: /app-insights-resource-id": "/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/resourceGroups/MasterSEEI-DEV/providers/microsoft.insights/components/MasterSEEI-AppInsights",
+                "hidden-link: /app-insights-instrumentation-key": "c5c483d8-a722-4a7d-838f-a393fd26ea92",
+                "hidden-link: /app-insights-conn-string": "InstrumentationKey=c5c483d8-a722-4a7d-838f-a393fd26ea92;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/;ApplicationId=fb7c9fa7-732c-4592-87cc-dbe1812dcfb9"
+            },
+            "kind": "functionapp",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_myhealthappmanagement_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_myhealthappmanagement_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_MasterSEEIDEV_9807_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "dnsConfiguration": {},
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 200,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": false,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "vnetBackupRestoreEnabled": false,
+                "customDomainVerificationId": "824765A5C84A63BE37A1C63A94023A964CBC48832BC5C8E524840C09B619A6CD",
+                "containerSize": 1536,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "publicNetworkAccess": "Enabled",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/ftp')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "tags": {
+                "hidden-link: /app-insights-resource-id": "/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/resourceGroups/MasterSEEI-DEV/providers/microsoft.insights/components/MasterSEEI-AppInsights",
+                "hidden-link: /app-insights-instrumentation-key": "c5c483d8-a722-4a7d-838f-a393fd26ea92",
+                "hidden-link: /app-insights-conn-string": "InstrumentationKey=c5c483d8-a722-4a7d-838f-a393fd26ea92;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/;ApplicationId=fb7c9fa7-732c-4592-87cc-dbe1812dcfb9"
+            },
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/scm')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "tags": {
+                "hidden-link: /app-insights-resource-id": "/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/resourceGroups/MasterSEEI-DEV/providers/microsoft.insights/components/MasterSEEI-AppInsights",
+                "hidden-link: /app-insights-instrumentation-key": "c5c483d8-a722-4a7d-838f-a393fd26ea92",
+                "hidden-link: /app-insights-conn-string": "InstrumentationKey=c5c483d8-a722-4a7d-838f-a393fd26ea92;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/;ApplicationId=fb7c9fa7-732c-4592-87cc-dbe1812dcfb9"
+            },
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/web')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "tags": {
+                "hidden-link: /app-insights-resource-id": "/subscriptions/94eebe88-e8ef-42d8-bd28-7bd6dbcb2cca/resourceGroups/MasterSEEI-DEV/providers/microsoft.insights/components/MasterSEEI-AppInsights",
+                "hidden-link: /app-insights-instrumentation-key": "c5c483d8-a722-4a7d-838f-a393fd26ea92",
+                "hidden-link: /app-insights-conn-string": "InstrumentationKey=c5c483d8-a722-4a7d-838f-a393fd26ea92;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/;ApplicationId=fb7c9fa7-732c-4592-87cc-dbe1812dcfb9"
+            },
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php"
+                ],
+                "netFrameworkVersion": "v6.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$myhealthappmanagement",
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "publicNetworkAccess": "Enabled",
+                "cors": {
+                    "allowedOrigins": [
+                        "https://portal.azure.com"
+                    ],
+                    "supportCredentials": false
+                },
+                "localMySqlEnabled": false,
+                "managedServiceIdentityId": 20940,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "FtpsOnly",
+                "preWarmedInstanceCount": 0,
+                "functionAppScaleLimit": 200,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/ChildAccountLogin')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/ChildAccountLogin/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/ChildAccountLogin/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/ChildAccountLogin.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/ChildAccountLogin",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "ChildAccountLogin",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.ChildAccountLogin.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/childaccountlogin",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/CreateChildAccount')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/CreateChildAccount/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/CreateChildAccount/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/CreateChildAccount.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/CreateChildAccount",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "ChildAccounts",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.CreateChildAccount.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/childaccounts",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/CreateParentAccount')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/CreateParentAccount/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/CreateParentAccount/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/CreateParentAccount.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/CreateParentAccount",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "ParentAccounts",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.CreateParentAccount.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/parentaccounts",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/CreateUserLocation')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/CreateUserLocation/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/CreateUserLocation/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/CreateUserLocation.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/CreateUserLocation",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "UserLocation",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.CreateUserLocation.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/userlocation",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/DeleteChildAccount')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/DeleteChildAccount/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/DeleteChildAccount/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/DeleteChildAccount.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/DeleteChildAccount",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "methods": [
+                                "delete"
+                            ],
+                            "authLevel": "function",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "MyHealthAppManagement.DeleteChildAccount.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/deletechildaccount",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/DeleteParentAccount')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/DeleteParentAccount/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/DeleteParentAccount/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/DeleteParentAccount.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/DeleteParentAccount",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "methods": [
+                                "delete"
+                            ],
+                            "authLevel": "function",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "MyHealthAppManagement.DeleteParentAccount.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/deleteparentaccount",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/GetAssociatedChildAccounts')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/GetAssociatedChildAccounts/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/GetAssociatedChildAccounts/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/GetAssociatedChildAccounts.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/GetAssociatedChildAccounts",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "GetAssociatedChildAccounts",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.GetChildAccounts.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/getassociatedchildaccounts",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/GetChildAccountInfo')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/GetChildAccountInfo/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/GetChildAccountInfo/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/GetChildAccountInfo.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/GetChildAccountInfo",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "ChildAccountInfo",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.GetChildAccountInfo.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/childaccountinfo",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/GetChildAccountLocation')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/GetChildAccountLocation/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/GetChildAccountLocation/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/GetChildAccountLocation.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/GetChildAccountLocation",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "function",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "MyHealthAppManagement.GetChildAccountLocation.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/getchildaccountlocation",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/ParentAccountLogin')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/ParentAccountLogin/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/ParentAccountLogin/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/ParentAccountLogin.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/ParentAccountLogin",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "route": "ParentAccountLogin",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "anonymous",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "myhealthcaresystem.ParentAccountLogin.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/parentaccountlogin",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/UpdateChildAccountData')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/UpdateChildAccountData/",
+                "script_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/bin/MyHealthAppManagement.dll",
+                "config_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/site/wwwroot/UpdateChildAccountData/function.json",
+                "test_data_href": "https://myhealthappmanagement.azurewebsites.net/admin/vfs/data/Functions/sampledata/UpdateChildAccountData.dat",
+                "href": "https://myhealthappmanagement.azurewebsites.net/admin/functions/UpdateChildAccountData",
+                "config": {
+                    "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.1.1",
+                    "configurationSource": "attributes",
+                    "bindings": [
+                        {
+                            "type": "httpTrigger",
+                            "methods": [
+                                "post"
+                            ],
+                            "authLevel": "function",
+                            "name": "req"
+                        }
+                    ],
+                    "disabled": false,
+                    "scriptFile": "../bin/MyHealthAppManagement.dll",
+                    "entryPoint": "MyHealthAppManagement.UpdateChildAccountData.Run"
+                },
+                "invoke_url_template": "https://myhealthappmanagement.azurewebsites.net/api/updatechildaccountdata",
+                "language": "DotNetAssembly",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2023-12-01",
+            "name": "[concat(parameters('sites_myhealthappmanagement_name'), '/', parameters('sites_myhealthappmanagement_name'), '.azurewebsites.net')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_myhealthappmanagement_name'))]"
+            ],
+            "properties": {
+                "siteName": "myhealthappmanagement",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___masterseei_appinsights_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector"
+                },
+                "scope": [
+                    "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/delete-deletechildaccount')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "DeleteChildAccount",
+                "method": "DELETE",
+                "urlTemplate": "/DeleteChildAccount",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/delete-deleteparentaccount')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "DeleteParentAccount",
+                "method": "DELETE",
+                "urlTemplate": "/DeleteParentAccount",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-childaccountlogin')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "ChildAccountLogin",
+                "method": "POST",
+                "urlTemplate": "/ChildAccountLogin",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-createchildaccount')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "CreateChildAccount",
+                "method": "POST",
+                "urlTemplate": "/ChildAccounts",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-createparentaccount')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "CreateParentAccount",
+                "method": "POST",
+                "urlTemplate": "/ParentAccounts",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-createuserlocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "CreateUserLocation",
+                "method": "POST",
+                "urlTemplate": "/UserLocation",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-getassociatedchildaccounts')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "GetAssociatedChildAccounts",
+                "method": "POST",
+                "urlTemplate": "/GetAssociatedChildAccounts",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-getchildaccountinfo')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "GetChildAccountInfo",
+                "method": "POST",
+                "urlTemplate": "/ChildAccountInfo",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-getchildaccountlocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "GetChildAccountLocation",
+                "method": "POST",
+                "urlTemplate": "/GetChildAccountLocation",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-parentaccountlogin')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "ParentAccountLogin",
+                "method": "POST",
+                "urlTemplate": "/ParentAccountLogin",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-updatechildaccountdata')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "displayName": "UpdateChildAccountData",
+                "method": "POST",
+                "urlTemplate": "/UpdateChildAccountData",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/wikis",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "documents": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/diagnostics",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/applicationinsights')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('service_masterseei_dev_apimanagement_name'), 'MasterSEEI-AppInsights')]"
+            ],
+            "properties": {
+                "alwaysLog": "allErrors",
+                "httpCorrelationProtocol": "Legacy",
+                "logClientIp": true,
+                "loggerId": "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('service_masterseei_dev_apimanagement_name'), 'MasterSEEI-AppInsights')]",
+                "sampling": {
+                    "samplingType": "fixed",
+                    "percentage": 100
+                },
+                "frontend": {
+                    "request": {
+                        "dataMasking": {
+                            "queryParams": [
+                                {
+                                    "value": "*",
+                                    "mode": "Hide"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "backend": {
+                    "request": {
+                        "dataMasking": {
+                            "queryParams": [
+                                {
+                                    "value": "*",
+                                    "mode": "Hide"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/diagnostics",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/azuremonitor')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('service_masterseei_dev_apimanagement_name'), 'azuremonitor')]"
+            ],
+            "properties": {
+                "logClientIp": true,
+                "loggerId": "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('service_masterseei_dev_apimanagement_name'), 'azuremonitor')]",
+                "sampling": {
+                    "samplingType": "fixed",
+                    "percentage": 100
+                },
+                "frontend": {
+                    "request": {
+                        "dataMasking": {
+                            "queryParams": [
+                                {
+                                    "value": "*",
+                                    "mode": "Hide"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "backend": {
+                    "request": {
+                        "dataMasking": {
+                            "queryParams": [
+                                {
+                                    "value": "*",
+                                    "mode": "Hide"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/diagnostics/loggers",
+            "apiVersion": "2018-01-01",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/azuremonitor/azuremonitor')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/diagnostics', parameters('service_masterseei_dev_apimanagement_name'), 'azuremonitor')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/diagnostics/loggers",
+            "apiVersion": "2018-01-01",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/applicationinsights/MasterSEEI-AppInsights')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/diagnostics', parameters('service_masterseei_dev_apimanagement_name'), 'applicationinsights')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/groups/users",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/administrators/1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/groups', parameters('service_masterseei_dev_apimanagement_name'), 'administrators')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/groups/users",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/developers/1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/groups', parameters('service_masterseei_dev_apimanagement_name'), 'developers')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/loggers",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/MasterSEEI-AppInsights')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]",
+                "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            ],
+            "properties": {
+                "loggerType": "applicationInsights",
+                "credentials": {
+                    "instrumentationKey": "{{Logger-Credentials--66bde6a1bcc854120c8de717}}"
+                },
+                "isBuffered": true,
+                "resourceId": "[resourceId('microsoft.insights/components', parameters('components_MasterSEEI_AppInsights_name'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 7,
+                "diffBackupIntervalInHours": 12
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [
+                    ""
+                ],
+                "emailAddresses": [
+                    ""
+                ],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2023-08-01-preview",
+            "name": "[concat(parameters('servers_myhealthapp_masterseei_name'), '/myhealthappdatabase/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_myhealthapp_masterseei_name'), 'myhealthappdatabase')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_myhealthapp_masterseei_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/delete-deletechildaccount/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'delete-deletechildaccount')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/delete-deleteparentaccount/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'delete-deleteparentaccount')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-childaccountlogin/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-childaccountlogin')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-createchildaccount/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-createchildaccount')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-createparentaccount/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-createparentaccount')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-createuserlocation/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-createuserlocation')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-getassociatedchildaccounts/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-getassociatedchildaccounts')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-getchildaccountinfo/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-getchildaccountinfo')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-getchildaccountlocation/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-getchildaccountlocation')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-parentaccountlogin/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-parentaccountlogin')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2023-09-01-preview",
+            "name": "[concat(parameters('service_masterseei_dev_apimanagement_name'), '/my-health-app-management/post-updatechildaccountdata/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management', 'post-updatechildaccountdata')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_masterseei_dev_apimanagement_name'), 'my-health-app-management')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_masterseei_dev_apimanagement_name'))]"
+            ],
+            "properties": {
+                "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n    <set-backend-service id=\"apim-generated-policy\" backend-id=\"myhealthappmanagement\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        }
+    ]
+}

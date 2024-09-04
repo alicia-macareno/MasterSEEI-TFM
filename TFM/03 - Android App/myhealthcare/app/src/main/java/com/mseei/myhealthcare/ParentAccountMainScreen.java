@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,9 +36,10 @@ public class ParentAccountMainScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.parent_account_main_screen);
 
-        parentEmail = "aaperezmac@hotmail.com";
+        Bundle extras = getIntent().getExtras();
+        parentEmail = extras.getString("email");
 
-        // Configure child accounts RecyclerView
+        // Inicializa el RecyclerView y el Adapter
         childAccountsRecyclerView = findViewById(R.id.recyclerView);
         childAccountAdapter = new ChildAccountAdapter(this, childAccountList);
         childAccountsRecyclerView.setAdapter(childAccountAdapter);
@@ -50,12 +50,6 @@ public class ParentAccountMainScreen extends AppCompatActivity {
     }
 
     private class FetchChildAccountsTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-           // Toast.makeText(ParentAccountMainScreen.this, "Fetching child accounts...", Toast.LENGTH_SHORT).show();
-        }
-
         @Override
         protected String doInBackground(String... params) {
             String email = params[0];
@@ -89,7 +83,6 @@ public class ParentAccountMainScreen extends AppCompatActivity {
             }
         }
 
-
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
@@ -118,36 +111,19 @@ public class ParentAccountMainScreen extends AppCompatActivity {
                     Log.d("ParentAccountMainScreen", "Child accounts fetched: " + childAccountList.size());
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(ParentAccountMainScreen.this, "Failed to parse response", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(ParentAccountMainScreen.this, "Failed to fetch child accounts", Toast.LENGTH_SHORT).show();
+                Log.e("ParentAccountMainScreen", "Failed to fetch child accounts");
             }
         }
+
+
     }
 
-    public void navigateToAssociatedChildAccountInformationScreen(int childAccountID, String loginEmail, String firstName,
-                                                                  String firstLastName, String secondLastName, boolean status,
-                                                                  boolean blocked, int failedLoginAttempts, String createdOn,
-                                                                  boolean realTimeMonitoring, int perimeter, boolean pendingLocationConfig)
+    public void navigateToCreateChildAccountScreen(View view)
     {
-        Intent intent = new Intent(ParentAccountMainScreen.this, AssociatedChildAccountInformation.class);
-
-        // Pasar los datos a la actividad de destino
-        intent.putExtra("childAccountID", childAccountID);
-        intent.putExtra("loginEmail", loginEmail);
-        intent.putExtra("firstName", firstName);
-        intent.putExtra("firstLastName", firstLastName);
-        intent.putExtra("secondLastName", secondLastName);
-        intent.putExtra("status", status);
-        intent.putExtra("blocked", blocked);
-        intent.putExtra("failedLoginAttempts", failedLoginAttempts);
-        intent.putExtra("createdOn", createdOn);
-        intent.putExtra("realTimeMonitoring", realTimeMonitoring);
-        intent.putExtra("perimeter", perimeter);
-        intent.putExtra("pendingLocationConfig", pendingLocationConfig);
-
+        Intent intent = new Intent(ParentAccountMainScreen.this, CreateChildAccountScreen.class);
+        intent.putExtra("parentEmail", parentEmail);
         startActivity(intent);
     }
-
 }

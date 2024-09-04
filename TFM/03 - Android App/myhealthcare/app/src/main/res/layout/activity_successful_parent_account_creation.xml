@@ -27,7 +27,7 @@
                 android:id="@+id/confirmationTitleTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/AccountCreated"
+                android:text="@string/account_created"
                 android:textAlignment="center"
                 android:textColor="#283618"
                 android:textSize="30sp"
@@ -40,7 +40,7 @@
                 android:maxHeight="50dp"
                 android:minWidth="20dp"
                 android:src="@drawable/ic_check"
-                android:tint="#4CAF50" />
+                app:tint="#4CAF50" />
 
             <Button
                 android:id="@+id/goToSignInButton"
@@ -50,12 +50,11 @@
                 android:layout_marginTop="30dp"
                 android:backgroundTint="#52796F"
                 android:onClick="navigateToParentAccountLogin"
-                android:text="@string/GoToSignIn"
+                android:text="@string/go_to_sign_in"
                 android:textColor="#FFFFFF" />
 
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
